@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <main>
+        <h1>We are preprocessing the data</h1>
+        <form action="{% url 'prediction:preprocessing' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            Select image to upload:
+            <input type="file" name="fileToUpload" id="fileToUpload">
+            <input type="submit" value="Upload Txt" name="submit">
+            </form>
+    </main>
+    
+
+{% endblock content %}
