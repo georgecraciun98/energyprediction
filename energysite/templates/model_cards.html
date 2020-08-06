@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+  <h1>Choose a model </h1>
+  <div class="row">
+    {%for model in models %}
+      <!-- Card Narrower -->
+      <div class="card card-cascade narrower col-4" >
+
+        <!-- Card image -->
+        <div class="view view-cascade overlay">
+          <img width="200" height="200" class="card-img-top" src="{% static 'img/img1.jpg' %}"
+            alt="Card image cap">
+          <a>
+            <div class="mask rgba-white-slight"></div>
+          </a>
+        </div>
+
+        <!-- Card content -->
+        <div class="card-body card-body-cascade">
+
+          <!-- Label -->
+          
+          <!-- Title -->
+          <h4 class="font-weight-bold card-title">{{model.model_type}}</h4>
+          <!-- Text -->
+          <p class="card-text">{{model.description}}</p>
+          <!-- Button -->
+          <a class="btn btn-unique" href="showplot/{{model.model_type}}">Evaluate model</a>
+
+        </div>
+
+        
+
+      </div>
+      <!-- Card Narrower -->
+    {% endfor %}
+  </div>
+</div>
+
+
+    
+
+{% endblock content %}
+

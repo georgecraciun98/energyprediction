@@ -44,9 +44,6 @@ def problem_frame(dataset):
     daily_groups=dataset.resample('D')
     daily_data=daily_groups.sum()
 
-    print(daily_data.shape)
-
-    print(daily_data.head())
 
     daily_data.to_csv('household_power_consumption_days.csv')
     return 'household_power_consumption_days.csv'

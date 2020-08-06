@@ -1,21 +1,19 @@
  # -*- coding: utf-8 -*-
-
+import os
 from math import sqrt
 from pandas import read_csv
 from numpy import split
 from numpy import array
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error,mean_absolute_error
+import warnings
+warnings.filterwarnings("ignore")
 import tensorflow as tf
+
 
 from tensorflow import keras
 from keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from keras.layers import Flatten
-from tensorflow.keras.layers import LSTM
-from keras.layers import RepeatVector
-from keras.layers import TimeDistributed
+from tensorflow.keras.layers import Dense,LSTM
 from matplotlib import pyplot
-#Split dataset into train/test sets
 
 def split_dataset(values):
     train,test = values[1:-328],values[-328:-6]
@@ -32,24 +30,29 @@ def split_dataset(values):
     represents predicted results
     """
 def evaluate_forecasts(actual,predicted):
-    scores=list()
-    rows=actual.shape[0]
-    cols=actual.shape[1]
-    
-    print("Actual:",actual)
-    print("Predicted:",predicted)
-    for i in range(cols):
-        #Calculate mse for an entire week
-        mse=mean_squared_error(actual[:,i],predicted[:,i])
-        rmse=sqrt(mse)
-        scores.append(rmse)
-    s = 0
-    for row in range(rows):
-        for col in range(cols):
-            s += (actual[row,col]-predicted[row,col])**2
-    score=sqrt(s / (rows*cols))
-    
-    return score,scores
+    scores_rmse = list()
+    scores_mae= list()
+	# calculate an RMSE score for each day
+    for i in range(actual.shape[1]):
+		# calculate mse
+        mse = mean_squared_error(actual[:, i], predicted[:, i])
+
+        mae= mean_absolute_error(actual[:, i], predicted[:, i])
+		# calculate rmse
+        rmse = sqrt(mse)
+		# store
+        scores_rmse.append(rmse)
+        scores_mae.append(mae)
+	# calculate overall RMSE
+    s_rmse = 0
+    s_mae = 0
+    for row in range(actual.shape[0]):
+        for col in range(actual.shape[1]):
+            s_rmse += (actual[row, col] - predicted[row, col])**2
+            s_mae += abs((actual[row, col] - predicted[row, col]))
+    score_rmse = sqrt(s_rmse / (actual.shape[0] * actual.shape[1]))
+    score_mae = s_mae / (actual.shape[0] * actual.shape[1])
+    return score_rmse, scores_rmse, score_mae, scores_mae
 
 def summarize_scores(name,score,scores):
     s_scores= ', '.join(['%.1f' % s for s in scores])
@@ -147,11 +150,11 @@ def evaluate_model(train,test,n_input):
     
     predictions = array(predictions)
     
-    score,scores=evaluate_forecasts(test[:,:,0], predictions)
+    score_rmse, scores_rmse, score_mae, scores_mae=evaluate_forecasts(test[:,:,0], predictions)
         
         
     
-    return score,scores
+    return score_rmse, scores_rmse, score_mae, scores_mae
     
 
     

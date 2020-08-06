@@ -4,8 +4,21 @@
     <main>
     <h1>House Energy Power Consumption</h1>
         {% for item in data %}
-        <img src="data:image/png;base64,{{ item.uri}}" alt="No image available"
+        {% if item.uri_mae %}
+        <div>
+        <h3>MAE Plot<h3>
+        <img src="data:image/png;base64,{{ item.uri_mae}}" alt="No image available"
         height="500" width="500">
+        </div>
+        {% endif %}
+        {% if item.uri_rmse %}
+        <div>
+        <h3>RMSE Plot<h3>
+        <img src="data:image/png;base64,{{ item.uri_rmse}}" alt="No image available"
+        height="500" width="500">
+        </div>
+        {% endif%}
+        
         {% endfor%}
     </main>
     
