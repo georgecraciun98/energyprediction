@@ -3,19 +3,20 @@
 {% block content %}
 <div class="container">
     <main>
+        <hr>
         <h1>Load and Prepare Dataset</h1>
         <hr>
         <form action="{% url 'prediction:preprocessing' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <label for="fileToUpload">Select a txt file with the data to be processed: <label>
+            <label for="file_csv">Select a txt file with the data to be processed: <label>
             
-            <input class="btn btn-light" type="file" name="fileToUpload" id="fileToUpload">
+            {{ form }}
             <input class="btn btn-success" type="submit" value="Upload Txt" name="submit">
-            </form>
+        </form>
     </main>
     <hr>
-    <h1>Or just</h1>
-    <a href="{% url 'prediction:choose-model' %}"class="btn btn-primary"> Choose model</a>
+
+    
 </div>   
 
 {% endblock content %}

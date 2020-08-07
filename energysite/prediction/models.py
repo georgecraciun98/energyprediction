@@ -1,15 +1,15 @@
 from django.db import models
-
+from scripts.storage import OverWriteStorage
 # Create your models here.
 
 
 class Plot(models.Model):
-
-    csv = models.FileField(blank=True, null=True)
+    model_type= models.CharField(max_length=20,blank=True,null=True)
+    csv = models.FileField(blank=True, null=True,storage=OverWriteStorage())
     input_days = models.IntegerField(blank=True, null=True, default=14)
-    preprocessed_data = models.FileField(blank=True, null=True)
-    framed_data = models.FileField(blank=True, null=True)
-    processed_data = models.FileField(blank=True, null=True)
+    
+    framed_data = models.FileField(blank=True, null=True,storage=OverWriteStorage())
+    
     uri_rmse = models.CharField(max_length=250, blank=True, null=True)
     uri_mae = models.CharField(max_length=250, blank=True, null=True)
     date_created = models.DateField(auto_now_add=True)

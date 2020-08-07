@@ -2,24 +2,38 @@
 
 {% block content %}
     <main>
-    <h1>House Energy Power Consumption</h1>
-        {% for item in data %}
-        {% if item.uri_mae %}
-        <div>
-        <h3>MAE Plot<h3>
-        <img src="data:image/png;base64,{{ item.uri_mae}}" alt="No image available"
-        height="500" width="500">
+        <div class="container">
+            <hr>
+            <div class="row">
+                {% for item in data %}
+                    <div class="col-2">
+                    {% if item.model_type%}
+                        <h3>Model type : {{item.model_type}}<h3>
+                        {% endif%}
+                    </div>
+                    <div class="col-4">
+                    {% if item.uri_mae %}
+                        
+
+                        
+                            <h3>MAE Plot<h3>
+                            <img src="data:image/png;base64,{{ item.uri_mae}}" alt="No image available"
+                            height="400" width="400">
+                        
+                    {% endif %}
+                    </div>
+                    <div class="col-4">
+                    {% if item.uri_rmse %}
+                        
+                            <h3>RMSE Plot<h3>
+                            <img src="data:image/png;base64,{{ item.uri_rmse}}" alt="No image available"
+                            height="400" width="400">
+                        
+                    {% endif%}
+                    </div>
+                {% endfor%}
+            <div>
         </div>
-        {% endif %}
-        {% if item.uri_rmse %}
-        <div>
-        <h3>RMSE Plot<h3>
-        <img src="data:image/png;base64,{{ item.uri_rmse}}" alt="No image available"
-        height="500" width="500">
-        </div>
-        {% endif%}
-        
-        {% endfor%}
     </main>
     
 

@@ -4,6 +4,9 @@ from pandas import read_csv
 import numpy as np
 from numpy import nan
 from numpy import isnan
+import os
+from django.conf import settings
+from prediction.models import Plot
 
 
 def fill_missing(values):
@@ -35,9 +38,12 @@ def prepare_data(dataset):
 
 def problem_frame(dataset):
     dataset = prepare_data(dataset)
-    dataset.to_csv('household_power_consumption.csv')
+    csv_path=os.path.join(settings.MEDIA_ROOT,'household_power_consumption.csv')
+    dataset.to_csv(csv_path)
+    plot=Plot.objects.order_by('-date_created')[0]
+    
     dataset = read_csv(
-        'household_power_consumption.csv',
+        csv_path,
         header=0,
         infer_datetime_format=True,
         parse_dates=['datetime'],
@@ -46,5 +52,7 @@ def problem_frame(dataset):
     daily_groups = dataset.resample('D')
     daily_data = daily_groups.sum()
 
-    daily_data.to_csv('household_power_consumption_days.csv')
-    return 'household_power_consumption_days.csv'
+    daily_data.to_csv(csv_path)
+    plot.framed_data=csv_path
+    plot.save()
+

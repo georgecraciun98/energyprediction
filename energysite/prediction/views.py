@@ -5,14 +5,15 @@ from scripts.model_processing import evaluate_model as ev_model
 from scripts.prepare_dataset import problem_frame
 from scripts.encoder_decoder_model import evaluate_model as encode_decoder
 from matplotlib import pyplot
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.views import APIView
 from django.conf.urls.static import static
 from django.conf import settings as djangoSettings
 from django.contrib import messages
 from .models import Plot, LstmModels
 from django.views import View
+from .forms import UploadFileForm
+from django.forms import Form
 import io
 import base64
 import urllib
@@ -31,23 +32,29 @@ def cards(request):
 class Preprocessing(View):
 
     def get(self, request, *args, **kwargs):
-        return render(request, "preprocessing.html")
+        form=UploadFileForm()
+        return render(request, "preprocessing.html",{'form':form})
+
+    
 
     def post(self, request, *args, **kwargs):
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            plot=Plot(csv=form.cleaned_data['file_csv'])
+            plot.save()
 
-        csv = request.FILES['fileToUpload']
+        csv = plot.csv
         dataset = read_csv(csv,
                            sep=';', header=0, low_memory=False,
                            infer_datetime_format=True,
                            parse_dates={'datetime': [0, 1]},
                            index_col=['datetime'])
 
-        csv = problem_frame(dataset)
-        plot = Plot()
-        plot.csv = csv
-        plot.save()
+        problem_frame(dataset)
+
         return redirect("prediction:choose-model")
 
+    
 
 class ChooseModel(View):
     def get(self, request, *args, **kwargs):
@@ -57,16 +64,14 @@ class ChooseModel(View):
         except Exception as e:
             return redirect("prediction:preprocessing")
 
-
-class Showplot(View):
+class PredictData(View):
     def get(self, request, *args, **kwargs):
-
         if kwargs['type']:
             plot = Plot.objects.order_by('-date_created')[0]
-            csv = plot.csv
+            csv = plot.framed_data
             model_type = kwargs['type']
             dataset = read_csv(
-                r'S:\Practica\EnergyPrediction\energyprediction\energysite\household_power_consumption_days.csv',
+                csv,
                 header=0,
                 infer_datetime_format=True,
                 parse_dates=['datetime'],
@@ -95,7 +100,9 @@ class Showplot(View):
             buf.seek(0)
             string = base64.b64encode(buf.read())
             uri = urllib.parse.quote(string)
+            plot.uri_mae=uri
 
+            pyplot.clf()
             pyplot.plot(days, scores_rmse, marker='o', label='lstm')
             # pyplot.plot(range(10))
             fig = pyplot.gcf()
@@ -107,14 +114,20 @@ class Showplot(View):
             uri = urllib.parse.quote(string)
 
             plot.uri_rmse = uri
-
+            plot.model_type=model_type
             plot.save()
-            all_entries = Plot.objects.all()
-            return render(
-                request, 'show_prediction.html', {
-                    'data': Plot.objects.all()})
+            return redirect("prediction:showplot")
         else:
 
             messages.warning(
                 request, "The uploaded file has not the right format")
             return render(request, "home.html")
+            
+class Showplot(View):
+    def get(self,request,*args,**kwargs):
+        all_entries = Plot.objects.all()
+        return render(
+            request, 'show_prediction.html', {'data': Plot.objects.all()})
+
+
+    
